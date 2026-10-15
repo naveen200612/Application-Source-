@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Online Bookstore</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; }
+        header { display: flex; justify-content: space-between; align-items: center; background: #333; color: white; padding: 15px 30px; margin-bottom: 20px; }
+        .controls { display: flex; gap: 15px; margin-bottom: 20px; }
+        .controls input, .controls select { padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        .book-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .book-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; }
+        .book-card h3 { margin-top: 0; color: #222; }
+        .price { font-size: 18px; font-weight: bold; color: #2e7d32; margin: 10px 0; }
+        .badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; text-transform: uppercase; width: max-content; }
+        .in-stock { background: #e8f5e9; color: #2e7d32; }
+        .out-of-stock { background: #ffebee; color: #c62828; }
+        button { background: #007bff; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-top: 15px; }
+        button:disabled { background: #cccccc; cursor: not-allowed; }
+        .cart-section { margin-top: 40px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>📚 DevOps Tech Bookstore</h1>
+    <div>Cart Items: <span id="cart-count">0</span></div>
+</header>
+
+<div class="controls">
+    <input type="text" id="searchBar" placeholder="Search by title or author..." onkeyup="filterBooks()">
+    <select id="categoryFilter" onchange="filterBooks()">
+        <option value="all">All Categories</option>
+        <option value="DevOps">DevOps</option>
+        <option value="Cloud">Cloud</option>
+        <option value="Programming">Programming</option>
+    </select>
+</div>
+
+<div class="book-container" id="bookContainer"></div>
+
+<!-- Thank-you message feature injection placeholder -->
+<div id="additional-feature" class="cart-section" style="margin-top: 20px;">
+    <h3>📢 App Notifications</h3>
+    <p id="feature-text">Welcome to our automated bookstore deployment!</p>
+</div>
+
+<div class="cart-section">
+    <h2>🛒 Your Shopping Cart</h2>
+    <ul id="cart-items"></ul>
+    <p><strong>Total: \$<span id="cart-total">0.00</span></strong></p>
+    <button onclick="placeOrder()">Place Order</button>
+</div>
+
+<script>
+    const books = [
+        { id: 1, title: "The Phoenix Project", author: "Gene Kim", category: "DevOps", price: 24.99, available: true },
+        { id: 2, title: "Kubernetes Up & Running", author: "Brendan Burns", category: "Cloud", price: 39.99, available: true },
+        { id: 3, title: "Clean Code", author: "Robert C. Martin", category: "Programming", price: 42.50, available: true },
+        { id: 4, title: "Designing Data-Intensive Applications", author: "Martin Kleppmann", category: "Programming", price: 49.99, available: true },
+        { id: 5, title: "Site Reliability Engineering", author: "Betsy Beyer", category: "DevOps", price: 34.95, available: false },
+        { id: 6, title: "Cloud Native Patterns", author: "Cornelia Davis", category: "Cloud", price: 29.99, available: true }
+    ];
+
+    let cart = [];
+
+    function displayBooks(items) {
+        const container = document.getElementById('bookContainer');
+        container.innerHTML = '';
+        items.forEach(book => {
+            container.innerHTML += `
+                <div class="book-card">
+                    <div>
+                        <h3>${book.title}</h3>
+                        <p>By ${book.author} | <em>${book.category}</em></p>
+                        <span class="badge ${book.available ? 'in-stock' : 'out-of-stock'}">
+                            ${book.available ? 'In Stock' : 'Out of Stock'}
+                        </span>
+                    </div>
+                    <div>
+                        <div class="price">$${book.price.toFixed(2)}</div>
+                        <button ${!book.available ? 'disabled' : ''} onclick="addToCart(${book.id})">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function filterBooks() {
+        const query = document.getElementById('searchBar').value.toLowerCase();
+        const category = document.getElementById('categoryFilter').value;
+        const filtered = books.filter(book => {
+            const matchesSearch = book.title.toLowerCase().includes(query) || book.author.toLowerCase().includes(query);
+            const matchesCategory = category === 'all' || book.category === category;
+            return matchesSearch && matchesCategory;
+        });
+        displayBooks(filtered);
+    }
+
+    function addToCart(id) {
+        const book = books.find(b => b.id === id);
+        cart.push(book);
+        updateCart();
+    }
+
+    function updateCart() {
+        document.getElementById('cart-count').innerText = cart.length;
+        const list = document.getElementById('cart-items');
+        list.innerHTML = '';
+        let total = 0;
+        cart.forEach((item, index) => {
+            total += item.price;
+            list.innerHTML += `<li>${item.title} - $${item.price.toFixed(2)}</li>`;
+        });
+        document.getElementById('cart-total').innerText = total.toFixed(2);
+    }
+
+    function placeOrder() {
+        if (cart.length === 0) return alert("Your cart is empty!");
+        alert("Order placed successfully! Tracking Status: Processing");
+        cart = [];
+        updateCart();
+    }
+
+    // Initial Display
+    displayBooks(books);
+</script>
+</body>
+</html>
